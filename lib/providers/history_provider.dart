@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final orderHistoryProvider = FutureProvider.autoDispose
     .family<List<OrderHistory>, String>((ref, userId) async {
   try {
+    // MODIFICATION 7: Enhanced query to include admin profile information for approved orders
     final response = await Supabase.instance.client
         .from('commandes')
         .select('''
@@ -12,6 +13,8 @@ final orderHistoryProvider = FutureProvider.autoDispose
           created_at,
           is_approved,
           total,
+          approved_by,
+          approved_by_profile:profiles!approved_by(name),
           items:commande_items(
             id,
             produit:produits(
@@ -73,6 +76,7 @@ class OrderModificationNotifier extends StateNotifier<OrderHistory> {
 
   Future<void> _loadOrder() async {
     try {
+      // MODIFICATION 8: Enhanced query to include admin profile information when loading single order
       final response = await supabase
           .from('commandes')
           .select('''
@@ -80,6 +84,8 @@ class OrderModificationNotifier extends StateNotifier<OrderHistory> {
             created_at,
             is_approved,
             total,
+            approved_by,
+            approved_by_profile:profiles!approved_by(name),
             items:commande_items(
               id,
               produit:produits(
@@ -179,11 +185,4 @@ class OrderModificationNotifier extends StateNotifier<OrderHistory> {
       throw Exception('Failed to update order total');
     }
   }
-
-
-
- 
-
-
-  
 }

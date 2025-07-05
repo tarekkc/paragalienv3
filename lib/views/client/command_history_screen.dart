@@ -118,6 +118,18 @@ class CommandHistoryScreen extends ConsumerWidget {
                 DateFormat('MMM dd, yyyy - hh:mm a').format(order.date),
                 style: const TextStyle(color: Colors.grey),
               ),
+              // MODIFICATION 1: Added approved by admin name display in order card
+              if (order.isApproved && order.approvedBy != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Approuvée par: ${order.approvedBy}',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,9 +207,14 @@ class CommandHistoryScreen extends ConsumerWidget {
                   style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
+                // MODIFICATION 2: Updated chip text to show approved by admin name
                 Chip(
                   label: Text(
-                    order.isApproved ? 'Approvée avec ces modifications' : 'en attente',
+                    order.isApproved 
+                        ? (order.approvedBy != null 
+                            ? 'Approvée par ${order.approvedBy}' 
+                            : 'Approvée avec ces modifications')
+                        : 'en attente',
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor:

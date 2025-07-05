@@ -3,7 +3,7 @@ class OrderHistory {
   final DateTime date;
   final bool isApproved;
   final double total;
-  final String? approvedBy;
+  final String? approvedBy; // MODIFICATION 3: This field already exists, keeping it as is
   final List<OrderItem> items;
 
   OrderHistory({
@@ -12,7 +12,7 @@ class OrderHistory {
     required this.isApproved,
     required this.total,
     required this.items,
-    this.approvedBy,
+    this.approvedBy, // MODIFICATION 4: This field already exists, keeping it as is
   });
 
   factory OrderHistory.empty() => OrderHistory(
@@ -31,12 +31,34 @@ class OrderHistory {
         isApproved: _parseApprovalStatus(json['is_approved']),
         total: _parseDouble(json['total']),
         items: _parseItems(json['items']),
+        // MODIFICATION 5: Enhanced parsing to get admin name from approved_by field or profiles join
+        approvedBy: _parseApprovedBy(json),
       );
     } catch (e) {
       print('Error parsing OrderHistory: $e');
       print('Problematic JSON: $json');
       rethrow;
     }
+  }
+
+  // MODIFICATION 6: Added new method to parse approved by admin name
+  static String? _parseApprovedBy(Map<String, dynamic> json) {
+    // Try to get from direct approved_by field first
+    if (json['approved_by'] != null) {
+      return json['approved_by'].toString();
+    }
+    
+    // Try to get from profiles join (if the query includes admin profile data)
+    if (json['approved_by_profile'] != null && json['approved_by_profile']['name'] != null) {
+      return json['approved_by_profile']['name'].toString();
+    }
+    
+    // Try alternative field names that might be used
+    if (json['admin_name'] != null) {
+      return json['admin_name'].toString();
+    }
+    
+    return null;
   }
 
   static bool _parseApprovalStatus(dynamic status) {
